@@ -1,0 +1,20 @@
+{
+  "name": "dj-mix-store",
+  "version": "1.0.0",
+  "description": "Sell DJ mixes with M-Pesa payments via IntaSend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ejs": "^3.1.10",
+    "better-sqlite3": "^11.3.0",
+    "multer": "^1.4.5-lts.1",
+    "express-session": "^1.18.0",
+    "dotenv": "^16.4.5",
+    "uuid": "^9.0.1",
+    "node-fetch": "^2.7.0"
+  }
+}

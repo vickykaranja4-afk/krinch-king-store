@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — <%= site.name %></title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="admin-shell">
+    <div class="admin-header">
+      <h1>Dashboard</h1>
+      <form method="POST" action="/admin/logout"><button class="small-btn" type="submit">Log out</button></form>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="num"><%= mixes.length %></div>
+        <div class="lbl">Mixes uploaded</div>
+      </div>
+      <div class="stat-card">
+        <div class="num"><%= orders.filter(o => o.status === 'paid').length %></div>
+        <div class="lbl">Paid orders</div>
+      </div>
+      <div class="stat-card">
+        <div class="num"><%= site.currency %> <%= totalSales %></div>
+        <div class="lbl">Total sales</div>
+      </div>
+    </div>
+
+    <div class="admin-form">
+      <h2>Upload a new mix</h2>
+      <form method="POST" action="/admin/mixes" enctype="multipart/form-data">
+        <div class="form-row">
+          <div class="field">
+            <label>Title</label>
+            <input type="text" name="title" required>
+          </div>
+          <div class="field">
+            <label>Minimum tip (<%= site.currency %>)</label>
+            <input type="number" name="price" min="1" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Section</label>
+            <select name="category" style="width:100%; background:var(--ink); border:1px solid var(--hairline); color:var(--paper); padding:10px 12px; font-family:var(--font-body); font-size:14px;">
+              <option value="Worship">Worship</option>
+              <option value="Praise">Praise</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Duration label (e.g. "1hr 20min")</label>
+            <input type="text" name="duration_label">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Cover image (optional)</label>
+            <input type="file" name="cover" accept="image/*">
+          </div>
+        </div>
+        <div class="field">
+          <label>Description</label>
+          <textarea name="description" rows="3"></textarea>
+        </div>
+        <div class="field">
+          <label>Mix audio file (mp3, wav)</label>
+          <input type="file" name="audio" accept="audio/*" required>
+        </div>
+        <button class="btn" type="submit">Upload mix</button>
+      </form>
+    </div>
+
+    <div class="section-label">Your mixes</div>
+    <table class="admin-table">
+      <thead>
+        <tr><th>Title</th><th>Section</th><th>Min tip</th><th>Status</th><th>Uploaded</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <% mixes.forEach(function(mix) { %>
+          <tr>
+            <td><%= mix.title %></td>
+            <td><%= mix.category %></td>
+            <td><%= site.currency %> <%= mix.price %></td>
+            <td><span class="badge <%= mix.is_active ? 'active' : 'inactive' %>"><%= mix.is_active ? 'Live' : 'Hidden' %></span></td>
+            <td><%= new Date(mix.created_at).toLocaleDateString() %></td>
+            <td>
+              <div class="icon-btn-row">
+                <form method="POST" action="/admin/mixes/<%= mix.id %>/toggle">
+                  <button class="small-btn" type="submit"><%= mix.is_active ? 'Hide' : 'Show' %></button>
+                </form>
+                <form method="POST" action="/admin/mixes/<%= mix.id %>/delete" onsubmit="return confirm('Delete this mix permanently?')">
+                  <button class="small-btn" type="submit">Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+
+    <div class="section-label">Recent orders</div>
+    <table class="admin-table">
+      <thead>
+        <tr><th>Mix</th><th>Phone</th><th>Amount</th><th>Status</th><th>Date</th></tr>
+      </thead>
+      <tbody>
+        <% orders.forEach(function(o) { %>
+          <tr>
+            <td><%= o.mix_title %></td>
+            <td><%= o.phone_number %></td>
+            <td><%= site.currency %> <%= o.amount %></td>
+            <td><span class="badge <%= o.status %>"><%= o.status %></span></td>
+            <td><%= new Date(o.created_at).toLocaleString() %></td>
+          </tr>
+        <% }); %>
+        <% if (orders.length === 0) { %>
+          <tr><td colspan="5" style="color: var(--muted);">No orders yet.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

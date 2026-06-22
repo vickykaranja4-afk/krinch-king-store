@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= site.name %> — Mixes</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell">
+      <a class="brand" href="/"><img class="logo-mark" src="/img/logo.png" alt="<%= site.djName %>"></a>
+      <div class="slash-divider"><span class="cut"></span>M-Pesa checkout</div>
+    </div>
+  </header>
+
+  <nav class="category-tabs">
+    <div class="shell">
+      <button class="category-tab active" id="tab-worship" onclick="scrollToSection('worship-section', 'tab-worship')">Worship</button>
+      <button class="category-tab" id="tab-praise" onclick="scrollToSection('praise-section', 'tab-praise')">Praise</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="shell">
+      <div class="hero-eyebrow">Pay with M-Pesa &middot; Instant download</div>
+      <h1><span class="cut-line">Fresh sets.</span>No streaming caps.<br>Own the mix.</h1>
+      <p class="lede">Full-length sets from <%= site.djName %>, downloadable in one tap. Pick a mix, pay with M-Pesa, and the file starts downloading the moment your payment lands.</p>
+    </div>
+  </section>
+
+  <div class="shell">
+    <div class="section-label" id="worship-section">Worship</div>
+    <% if (worship.length === 0) { %>
+      <p style="color: var(--steel); padding: 0 0 40px;">No worship mixes live yet.</p>
+    <% } else { %>
+      <div class="mix-grid">
+        <% worship.forEach(function(mix) { %>
+          <a class="mix-card" href="/mix/<%= mix.id %>">
+            <div class="mix-cover">
+              <% if (mix.cover_filename) { %>
+                <img src="/uploads/covers/<%= mix.cover_filename %>" alt="<%= mix.title %>">
+              <% } else { %>
+                <div class="no-cover">K</div>
+              <% } %>
+              <img class="corner-mark" src="/img/logo.png" alt="">
+              <% if (mix.duration_label) { %>
+                <span class="duration-badge"><%= mix.duration_label %></span>
+              <% } %>
+            </div>
+            <div class="mix-card-body">
+              <h3><%= mix.title %></h3>
+              <div class="mix-card-footer">
+                <span class="tip-label">Tip to download &middot; <span class="min"><%= site.currency %> <%= mix.price %>+</span></span>
+                <span class="btn secondary">View</span>
+              </div>
+            </div>
+          </a>
+        <% }); %>
+      </div>
+    <% } %>
+
+    <div class="section-label" id="praise-section">Praise</div>
+    <% if (praise.length === 0) { %>
+      <p style="color: var(--steel); padding: 0 0 40px;">No praise mixes live yet.</p>
+    <% } else { %>
+      <div class="mix-grid">
+        <% praise.forEach(function(mix) { %>
+          <a class="mix-card" href="/mix/<%= mix.id %>">
+            <div class="mix-cover">
+              <% if (mix.cover_filename) { %>
+                <img src="/uploads/covers/<%= mix.cover_filename %>" alt="<%= mix.title %>">
+              <% } else { %>
+                <div class="no-cover">K</div>
+              <% } %>
+              <img class="corner-mark" src="/img/logo.png" alt="">
+              <% if (mix.duration_label) { %>
+                <span class="duration-badge"><%= mix.duration_label %></span>
+              <% } %>
+            </div>
+            <div class="mix-card-body">
+              <h3><%= mix.title %></h3>
+              <div class="mix-card-footer">
+                <span class="tip-label">Tip to download &middot; <span class="min"><%= site.currency %> <%= mix.price %>+</span></span>
+                <span class="btn secondary">View</span>
+              </div>
+            </div>
+          </a>
+        <% }); %>
+      </div>
+    <% } %>
+  </div>
+
+  <footer class="site-footer">
+    <div class="shell">
+      <span><%= site.djName %></span>
+      <span>Secure M-Pesa checkout</span>
+    </div>
+  </footer>
+
+  <script>
+    function scrollToSection(id, tabId) {
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+    }
+  </script>
+</body>
+</html>
