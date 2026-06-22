@@ -13,11 +13,14 @@ const { requireAdmin } = require('./middleware/auth');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Ensure upload directories exist (Git doesn't track empty folders,
-// so these must be created at runtime if missing)
+// DATA_DIR points to the persistent disk mount in production (e.g. /var/data on Render).
+// Falls back to a local "data" folder for local development.
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
+
+// Ensure upload directories exist on the persistent disk
 const uploadDirs = [
-  path.join(__dirname, 'public/uploads/mixes'),
-  path.join(__dirname, 'public/uploads/covers'),
+  path.join(DATA_DIR, 'uploads/mixes'),
+  path.join(DATA_DIR, 'uploads/covers'),
 ];
 uploadDirs.forEach((dir) => {
   if (!fs.existsSync(dir)) {
@@ -39,6 +42,7 @@ app.use(
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(DATA_DIR, 'uploads')));
 
 const SITE = {
   name: process.env.SITE_NAME || 'DJ Krinch King — Mixes',
@@ -49,8 +53,8 @@ const SITE = {
 // ---------- File upload config (admin mix uploads) ----------
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    if (file.fieldname === 'cover') cb(null, path.join(__dirname, 'public/uploads/covers'));
-    else cb(null, path.join(__dirname, 'public/uploads/mixes'));
+    if (file.fieldname === 'cover') cb(null, path.join(DATA_DIR, 'uploads/covers'));
+    else cb(null, path.join(DATA_DIR, 'uploads/mixes'));
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
@@ -221,7 +225,7 @@ app.get('/download/:token', (req, res) => {
   }
 
   const mix = db.prepare('SELECT * FROM mixes WHERE id = ?').get(order.mix_id);
-  const filePath = path.join(__dirname, 'public/uploads/mixes', mix.audio_filename);
+  const filePath = path.join(DATA_DIR, 'uploads/mixes', mix.audio_filename);
 
   if (!fs.existsSync(filePath)) {
     return res.status(404).render('404', { site: SITE, message: 'File not found. Please contact support.' });
@@ -310,9 +314,9 @@ app.post('/admin/mixes/:id/toggle', requireAdmin, (req, res) => {
 app.post('/admin/mixes/:id/delete', requireAdmin, (req, res) => {
   const mix = db.prepare('SELECT * FROM mixes WHERE id = ?').get(req.params.id);
   if (mix) {
-    const audioPath = path.join(__dirname, 'public/uploads/mixes', mix.audio_filename);
+    const audioPath = path.join(DATA_DIR, 'uploads/mixes', mix.audio_filename);
     const coverPath = mix.cover_filename
-      ? path.join(__dirname, 'public/uploads/covers', mix.cover_filename)
+      ? path.join(DATA_DIR, 'uploads/covers', mix.cover_filename)
       : null;
     if (fs.existsSync(audioPath)) fs.unlinkSync(audioPath);
     if (coverPath && fs.existsSync(coverPath)) fs.unlinkSync(coverPath);
