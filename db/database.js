@@ -1,7 +1,15 @@
 const Database = require('better-sqlite3');
 const path = require('path');
+const fs = require('fs');
 
-const db = new Database(path.join(__dirname, 'store.db'));
+// DATA_DIR points to the persistent disk mount in production (e.g. /var/data on Render).
+// Falls back to a local "data" folder for local development.
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+const db = new Database(path.join(DATA_DIR, 'store.db'));
 
 db.pragma('journal_mode = WAL');
 
