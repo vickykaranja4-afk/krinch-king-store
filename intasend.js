@@ -70,16 +70,18 @@ async function checkPaymentStatus(invoiceId) {
     throw new Error('IntaSend secret key is not configured yet.');
   }
 
-  const response = await fetch(`${BASE_URL}/payment/status/${invoiceId}/`, {
-    method: 'GET',
+  const response = await fetch(`${BASE_URL}/payment/status/`, {
+    method: 'POST',
     headers: {
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${SECRET_KEY}`,
     },
+    body: JSON.stringify({ invoice_id: invoiceId }),
   });
 
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data?.message || 'Could not check payment status.');
+    throw new Error(data?.message || data?.detail || 'Could not check payment status.');
   }
   return data; // contains invoice.state: PENDING, COMPLETE, FAILED
 }
