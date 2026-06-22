@@ -13,6 +13,19 @@ const { requireAdmin } = require('./middleware/auth');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Ensure upload directories exist (Git doesn't track empty folders,
+// so these must be created at runtime if missing)
+const uploadDirs = [
+  path.join(__dirname, 'public/uploads/mixes'),
+  path.join(__dirname, 'public/uploads/covers'),
+];
+uploadDirs.forEach((dir) => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+    console.log(`Created missing upload directory: ${dir}`);
+  }
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
